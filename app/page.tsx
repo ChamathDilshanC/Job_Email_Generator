@@ -1,5 +1,6 @@
 'use client';
 
+import { AlertDialog } from '@/components/alert-dialog';
 import { GoogleSignInButton, useGoogleAuth } from '@/components/google-sign-in';
 import JobFileUpload from '@/components/job-file-upload';
 import { copyToClipboard, type EmailClient } from '@/lib/emailClient';
@@ -27,6 +28,14 @@ export default function Home() {
     coverLetter: File | null;
   }>({ cv: null, coverLetter: null });
   const [isSending, setIsSending] = useState(false);
+
+  // Alert Dialog State
+  const [alertDialog, setAlertDialog] = useState<{
+    open: boolean;
+    title: string;
+    description: string;
+    type: 'success' | 'error' | 'info' | 'warning';
+  }>({ open: false, title: '', description: '', type: 'info' });
 
   // Google Auth
   const {
@@ -62,13 +71,25 @@ export default function Home() {
       !formData.position ||
       !formData.recipientEmail
     ) {
-      alert('Please fill in all fields');
+      setAlertDialog({
+        open: true,
+        title: 'Missing Information',
+        description:
+          'Please fill in all required fields: Company Name, Position, and Recipient Email.',
+        type: 'warning',
+      });
       return;
     }
 
     // Check if user is authenticated for Gmail API
     if (!isAuthenticated || !accessToken) {
-      alert('Please sign in with Google to send emails with attachments');
+      setAlertDialog({
+        open: true,
+        title: 'Authentication Required',
+        description:
+          'Please sign in with Google to send emails with attachments.',
+        type: 'warning',
+      });
       return;
     }
 
@@ -110,23 +131,33 @@ export default function Home() {
       );
 
       if (result.success) {
-        alert(
-          '✅ Email sent successfully!' +
-            (attachmentsList.length > 0
-              ? `\n\n📎 Attachments included:\n${attachmentsList
-                  .map(a => `- ${a.filename}`)
-                  .join('\n')}`
-              : '')
-        );
+        const attachmentText =
+          attachmentsList.length > 0
+            ? `\n\nAttachments included:\n${attachmentsList
+                .map(a => `• ${a.filename}`)
+                .join('\n')}`
+            : '';
+
+        setAlertDialog({
+          open: true,
+          title: 'Email Sent Successfully!',
+          description: `Your email has been sent to ${formData.recipientEmail}.${attachmentText}`,
+          type: 'success',
+        });
       } else {
         throw new Error(result.error || 'Failed to send email');
       }
     } catch (error) {
       console.error('Error sending email:', error);
-      alert(
-        '❌ Failed to send email: ' +
-          (error instanceof Error ? error.message : 'Unknown error')
-      );
+      setAlertDialog({
+        open: true,
+        title: 'Failed to Send Email',
+        description:
+          error instanceof Error
+            ? error.message
+            : 'An unknown error occurred. Please try again.',
+        type: 'error',
+      });
     } finally {
       setIsSending(false);
     }
@@ -188,7 +219,9 @@ export default function Home() {
           </div>
         </div>
 
-        <nav>
+        <nav
+          style={{ display: 'flex', flexDirection: 'column', height: '100%' }}
+        >
           <div className="nav-item active">
             <svg
               className="nav-icon"
@@ -271,6 +304,30 @@ export default function Home() {
               <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
             </svg>
             Other
+          </div>
+          <div
+            style={{
+              marginTop: 'auto',
+              paddingTop: '20px',
+              textAlign: 'center',
+            }}
+          >
+            <NextImage
+              src="/logosm.png"
+              alt="Logo"
+              width={150}
+              height={150}
+              style={{
+                margin: '0 auto',
+                display: 'block',
+              }}
+            />
+            <p
+              className="text-center text-xs"
+              style={{ marginTop: '10px', opacity: 0.7 }}
+            >
+              Developed by Chamath Dilshan .
+            </p>
           </div>
         </nav>
       </aside>
@@ -565,6 +622,15 @@ export default function Home() {
           </p>
         </footer>
       </main>
+
+      {/* Alert Dialog */}
+      <AlertDialog
+        open={alertDialog.open}
+        onOpenChange={open => setAlertDialog({ ...alertDialog, open })}
+        title={alertDialog.title}
+        description={alertDialog.description}
+        type={alertDialog.type}
+      />
     </div>
   );
 }
