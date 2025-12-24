@@ -21,13 +21,11 @@ export async function POST(request: NextRequest) {
     }
 
     // Create OAuth2 client
-    const oauth2Client = new google.auth.OAuth2(
-      process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID,
-      process.env.GOOGLE_CLIENT_SECRET,
-      process.env.NEXT_PUBLIC_REDIRECT_URI
-    );
+    // Note: With Firebase, we receive an ID token, but we need to use it differently
+    // Firebase handles the OAuth flow, so we just need to set the access token
+    const oauth2Client = new google.auth.OAuth2();
 
-    // Set credentials
+    // Set credentials with the Firebase user's access token
     oauth2Client.setCredentials({
       access_token: accessToken,
     });
@@ -37,6 +35,7 @@ export async function POST(request: NextRequest) {
 
     // Create MIME message
     const boundary = '----=_Part_' + Date.now();
+    const altBoundary = '----=_Alt_' + Date.now();
     const nl = '\r\n';
 
     let message = [
@@ -46,10 +45,21 @@ export async function POST(request: NextRequest) {
       `Content-Type: multipart/mixed; boundary="${boundary}"`,
       '',
       `--${boundary}`,
+      `Content-Type: multipart/alternative; boundary="${altBoundary}"`,
+      '',
+      `--${altBoundary}`,
       'Content-Type: text/plain; charset=UTF-8',
       'Content-Transfer-Encoding: 7bit',
       '',
+      bodyText.replace(/<[^>]*>/g, ''), // Strip HTML tags for plain text version
+      '',
+      `--${altBoundary}`,
+      'Content-Type: text/html; charset=UTF-8',
+      'Content-Transfer-Encoding: 7bit',
+      '',
       bodyText,
+      '',
+      `--${altBoundary}--`,
       '',
     ].join(nl);
 
@@ -91,6 +101,25 @@ export async function POST(request: NextRequest) {
     });
   } catch (error: any) {
     console.error('Error sending email:', error);
+
+    // Check if it's an authentication error
+    const isAuthError =
+      error.code === 401 ||
+      error.message?.includes('invalid authentication') ||
+      error.message?.includes('Invalid Credentials') ||
+      error.response?.status === 401;
+
+    if (isAuthError) {
+      return NextResponse.json(
+        {
+          error: 'Authentication expired. Please sign out and sign in again.',
+          authError: true,
+          details: error.response?.data || error.toString(),
+        },
+        { status: 401 }
+      );
+    }
+
     return NextResponse.json(
       {
         error: error.message || 'Failed to send email',

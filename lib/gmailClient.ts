@@ -79,7 +79,7 @@ export function createMimeMessage(params: SendEmailParams): string {
 export async function sendEmailWithAttachments(
   params: SendEmailParams,
   accessToken: string
-): Promise<{ success: boolean; error?: string }> {
+): Promise<{ success: boolean; error?: string; authError?: boolean }> {
   try {
     const response = await fetch('/api/send-email', {
       method: 'POST',
@@ -95,7 +95,11 @@ export async function sendEmailWithAttachments(
     const data = await response.json();
 
     if (!response.ok) {
-      return { success: false, error: data.error || 'Failed to send email' };
+      return {
+        success: false,
+        error: data.error || 'Failed to send email',
+        authError: data.authError || false,
+      };
     }
 
     return { success: true };

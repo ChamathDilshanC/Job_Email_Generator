@@ -85,6 +85,24 @@
   padding: 0;
 }
 
+/* Prevent text selection globally except for inputs */
+*:not(input):not(textarea):not([contenteditable='true']) {
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+
+/* Allow text selection in inputs */
+input,
+textarea,
+[contenteditable='true'] {
+  user-select: text;
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+}
+
 html,
 body {
   max-width: 100vw;
@@ -95,6 +113,7 @@ body {
   color: var(--text-primary);
   line-height: 1.6;
   font-size: 14px;
+  user-select: none;
 }
 
 body {
@@ -135,11 +154,13 @@ a {
   font-weight: 600;
   color: var(--text-primary);
   margin-bottom: 0.25rem;
+  user-select: none;
 }
 
 .sidebar-subtitle {
   font-size: 0.75rem;
   color: var(--text-muted);
+  user-select: none;
 }
 
 .nav-item {
@@ -153,6 +174,7 @@ a {
   font-weight: 500;
   cursor: pointer;
   transition: all var(--transition-fast);
+  user-select: none;
 }
 
 .nav-item:hover {
@@ -179,6 +201,7 @@ a {
 
 .page-header {
   margin-bottom: var(--spacing-xl);
+  user-select: none;
 }
 
 .page-title {
@@ -186,11 +209,13 @@ a {
   font-weight: 700;
   color: var(--text-primary);
   margin-bottom: 0.25rem;
+  user-select: none;
 }
 
 .page-description {
   font-size: 0.875rem;
   color: var(--text-secondary);
+  user-select: none;
 }
 
 /* Card */
@@ -215,6 +240,7 @@ a {
   font-size: 1rem;
   font-weight: 600;
   color: var(--text-primary);
+  user-select: none;
 }
 
 .card-actions {
@@ -245,11 +271,16 @@ a {
   text-transform: uppercase;
   letter-spacing: 0.5px;
   border-bottom: 1px solid var(--border-color);
+  user-select: none;
 }
 
 .table td {
   padding: var(--spacing-md);
   border-bottom: 1px solid var(--border-color);
+}
+
+.table td strong {
+  user-select: none;
 }
 
 .table tbody tr {
@@ -334,6 +365,7 @@ a {
   color: var(--text-secondary);
   border: 1px solid rgba(255, 255, 255, 0.2);
   box-shadow: none;
+  border-radius: 50%;
 }
 
 .btn-icon:hover {
@@ -403,6 +435,7 @@ a {
   border-radius: var(--radius-sm);
   background: var(--bg-hover);
   color: var(--text-secondary);
+  user-select: none;
 }
 
 .badge.success {

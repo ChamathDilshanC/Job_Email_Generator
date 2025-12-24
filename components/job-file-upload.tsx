@@ -103,7 +103,21 @@ export default function JobFileUpload({ onFilesChange }: FileUploadProps) {
     <div className="flex w-full flex-col gap-6">
       {/* CV Upload */}
       <form className="w-full" onSubmit={e => e.preventDefault()}>
-        <h3 className="text-lg font-semibold text-foreground">CV / Resume</h3>
+        <h3
+          style={{
+            fontSize: '0.75rem',
+            fontWeight: 600,
+            color: 'var(--text-secondary)',
+            textTransform: 'uppercase',
+            letterSpacing: '0.5px',
+            marginBottom: '0.75rem',
+            background: 'var(--bg-input)',
+            padding: 'var(--spacing-md)',
+            borderRadius: 'var(--radius-sm)',
+          }}
+        >
+          CV / Resume
+        </h3>
 
         <div
           className="flex justify-center rounded-md border mt-2 border-dashed border-input px-6 py-12 cursor-pointer hover:bg-muted/50 transition-colors"
@@ -178,7 +192,21 @@ export default function JobFileUpload({ onFilesChange }: FileUploadProps) {
 
       {/* Cover Letter Upload */}
       <form className="w-full" onSubmit={e => e.preventDefault()}>
-        <h3 className="text-lg font-semibold text-foreground">Cover Letter</h3>
+        <h3
+          style={{
+            fontSize: '0.75rem',
+            fontWeight: 600,
+            color: 'var(--text-secondary)',
+            textTransform: 'uppercase',
+            letterSpacing: '0.5px',
+            marginBottom: '0.75rem',
+            background: 'var(--bg-input)',
+            padding: 'var(--spacing-md)',
+            borderRadius: 'var(--radius-sm)',
+          }}
+        >
+          Cover Letter
+        </h3>
 
         <div
           className="flex justify-center rounded-md border mt-2 border-dashed border-input px-6 py-12 cursor-pointer hover:bg-muted/50 transition-colors"

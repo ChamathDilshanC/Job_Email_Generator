@@ -1,4 +1,3 @@
-import { GoogleAuthProvider } from '@/components/google-auth-provider';
 import type { Metadata } from 'next';
 import './globals.css';
 
@@ -17,9 +16,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body>
-        <GoogleAuthProvider>{children}</GoogleAuthProvider>
-      </body>
+      <body>{children}</body>
     </html>
   );
 }

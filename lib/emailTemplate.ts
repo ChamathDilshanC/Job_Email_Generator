@@ -202,15 +202,15 @@ Chamath Dilshan`;
 }
 
 // HTML version with bold formatting for Gmail
-export const EMAIL_TEMPLATE_HTML = `<div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+export const EMAIL_TEMPLATE_HTML = `<div style="max-width: 100%; width: 100%; font-family: Arial, sans-serif; line-height: 1.6; color: #333; box-sizing: border-box;">
 <p><strong>Chamath Dilshan</strong><br>
 +94 775 616 104 | dilshancolonne123@gmail.com</p>
 
 <p>Dear Hiring Manager,</p>
 
-<p>I am writing to express my interest in the {POSITION} position at <strong>{COMPANY_NAME}</strong>. As a Trainee Software Engineer pursuing a BSc (Hons) in Computer Science at the Institute of Software Engineering (IJSE), I bring hands-on experience in full-stack development, agile methodologies, and modern web technologies that align with your team's needs.</p>
+<p>I am writing to express my interest in the {POSITION} position at <strong style="color: #1a73e8;">{COMPANY_NAME}</strong>. As a Trainee Software Engineer pursuing a BSc (Hons) in Computer Science at the Institute of Software Engineering (IJSE), I bring hands-on experience in full-stack development, agile methodologies, and modern web technologies that align with your team's needs.</p>
 
-<p><strong>Technical Proficiency</strong></p>
+<p style="font-size: 16px; font-weight: bold; color: #1a1a1a; margin-top: 20px; margin-bottom: 10px;">Technical Proficiency</p>
 
 <p><strong>Frontend Technologies:</strong> React.js, Angular, TypeScript, JavaScript (ES6+), HTML5, CSS3, Tailwind CSS, Responsive Web Design, Progressive Web Apps (PWA), UI/UX implementation, PHP</p>
 
@@ -220,7 +220,7 @@ export const EMAIL_TEMPLATE_HTML = `<div style="font-family: Arial, sans-serif; 
 
 <p><strong>Development Tools & Practices:</strong> Git, GitHub, Version control, CI/CD, Agile/Scrum, Test-driven development (TDD), Code review, MVC architecture, Client-Server architecture, Object-oriented programming (OOP)</p>
 
-<p><strong>Professional Experience & Key Projects</strong></p>
+<p style="font-size: 16px; font-weight: bold; color: #1a1a1a; margin-top: 20px; margin-bottom: 10px;">Professional Experience & Key Projects</p>
 
 <p><strong>Trainee Software Engineer | IJSE | [Current]</strong><br>
 • Developing scalable web applications using modern JavaScript frameworks and backend technologies<br>
@@ -244,7 +244,7 @@ Developed Password Generator and QR Code Generator using React, TypeScript, and 
 
 <p><strong>Portfolio:</strong> chamathdilshan.com</p>
 
-<p><strong>What I Bring to Your Team</strong></p>
+<p style="font-size: 16px; font-weight: bold; color: #1a1a1a; margin-top: 20px; margin-bottom: 10px;">What I Bring to Your Team</p>
 
 <p><strong>Problem-Solving:</strong> Strong analytical skills with ability to debug complex issues and optimize application performance</p>
 
@@ -256,7 +256,7 @@ Developed Password Generator and QR Code Generator using React, TypeScript, and 
 
 <p><strong>Initiative:</strong> Self-starter with proven ability to manage multiple projects and deliver results in fast-paced environments</p>
 
-<p>I am excited about the opportunity to contribute to <strong>{COMPANY_NAME}</strong>'s innovative projects while learning from your experienced engineering team. My combination of academic foundation, practical experience, and enthusiasm for software development positions me to make meaningful contributions from day one.</p>
+<p>I am excited about the opportunity to contribute to <strong style="color: #1a73e8;">{COMPANY_NAME}</strong>'s innovative projects while learning from your experienced engineering team. My combination of academic foundation, practical experience, and enthusiasm for software development positions me to make meaningful contributions from day one.</p>
 
 <p>I would welcome the opportunity to discuss how my technical skills, project experience, and passion for software engineering align with your team's objectives. Thank you for considering my application.</p>
 
