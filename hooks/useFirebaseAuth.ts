@@ -29,6 +29,18 @@ export function useFirebaseAuth() {
 
   // Listen to auth state changes
   useEffect(() => {
+    // If auth is not initialized (e.g., during SSR or missing config), skip
+    if (!auth) {
+      setAuthState({
+        isAuthenticated: false,
+        accessToken: null,
+        userEmail: null,
+        user: null,
+        isLoading: false,
+      });
+      return;
+    }
+
     const unsubscribe = onAuthStateChanged(auth, async user => {
       if (user) {
         try {
@@ -93,6 +105,13 @@ export function useFirebaseAuth() {
   }, []);
 
   const handleSignIn = async () => {
+    if (!auth) {
+      return {
+        success: false,
+        error: 'Firebase auth is not initialized',
+      };
+    }
+
     try {
       const result = await signInWithPopup(auth, googleProvider);
 
@@ -145,6 +164,10 @@ export function useFirebaseAuth() {
   };
 
   const handleSignOut = async () => {
+    if (!auth) {
+      return;
+    }
+
     try {
       await firebaseSignOut(auth);
       // Clear the stored OAuth token and timestamp
