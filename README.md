@@ -15,10 +15,11 @@ A modern Next.js application that generates professional job application emails 
 - 📱 **Responsive Design** - Works perfectly on desktop, tablet, and mobile
 - ⚡ **Fast & Lightweight** - Built with Next.js 14 and TypeScript
 - 🎨 **Customizable Template** - Easy to modify email content
-
+<br>
 <div align="center">
 <img width="1919" height="936" alt="image" src="https://github.com/user-attachments/assets/3198e305-b10e-4df4-a0f4-ca092cec888c" />
 </div>
+
 ## Quick Start
 
 ### Prerequisites
