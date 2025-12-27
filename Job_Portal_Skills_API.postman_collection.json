@@ -1,0 +1,312 @@
+{
+  "info": {
+    "_postman_id": "job-portal-skills-api-collection",
+    "name": "Job Portal Skills API",
+    "description": "Complete API collection for Job Portal Skills API with authentication",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "job-portal-api"
+  },
+  "auth": {
+    "type": "apikey",
+    "apikey": [
+      {
+        "key": "value",
+        "value": "{{api_key}}",
+        "type": "string"
+      },
+      {
+        "key": "key",
+        "value": "X-API-Key",
+        "type": "string"
+      }
+    ]
+  },
+  "item": [
+    {
+      "name": "Root",
+      "item": [
+        {
+          "name": "Welcome Endpoint",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/",
+              "host": ["{{base_url}}"],
+              "path": [""]
+            },
+            "description": "Public endpoint - No API key required. Returns API information and available endpoints."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Positions",
+      "item": [
+        {
+          "name": "Get All Positions",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/positions",
+              "host": ["{{base_url}}"],
+              "path": ["api", "positions"]
+            },
+            "description": "Get a list of all available job positions. Requires API key authentication."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Position Suggestions",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/suggestions?q=engineer",
+              "host": ["{{base_url}}"],
+              "path": ["api", "suggestions"],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "engineer",
+                  "description": "Search query (minimum 2 characters)"
+                }
+              ]
+            },
+            "description": "Search for position suggestions based on a query string. Requires API key authentication."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Skills",
+      "item": [
+        {
+          "name": "Get Skills for Position",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/skills/Software Engineer",
+              "host": ["{{base_url}}"],
+              "path": ["api", "skills", "Software Engineer"]
+            },
+            "description": "Get the list of skills required for a specific job position. Requires API key authentication."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Skills for Data Analyst",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/skills/Data Analyst",
+              "host": ["{{base_url}}"],
+              "path": ["api", "skills", "Data Analyst"]
+            },
+            "description": "Example: Get skills for Data Analyst position."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Skills for UX Designer",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/skills/UX Designer",
+              "host": ["{{base_url}}"],
+              "path": ["api", "skills", "UX Designer"]
+            },
+            "description": "Example: Get skills for UX Designer position."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Categories",
+      "item": [
+        {
+          "name": "Get All Categories",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/categories",
+              "host": ["{{base_url}}"],
+              "path": ["api", "categories"]
+            },
+            "description": "Get all job categories available in the system. Requires API key authentication."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Positions by Category",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/categories/Technology",
+              "host": ["{{base_url}}"],
+              "path": ["api", "categories", "Technology"]
+            },
+            "description": "Get all positions in a specific category. Requires API key authentication."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "All Jobs",
+      "item": [
+        {
+          "name": "Get All Jobs with Categories",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/all-jobs",
+              "host": ["{{base_url}}"],
+              "path": ["api", "all-jobs"]
+            },
+            "description": "Get all job positions organized by categories. Requires API key authentication."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Documentation",
+      "item": [
+        {
+          "name": "Swagger UI Documentation",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/docs",
+              "host": ["{{base_url}}"],
+              "path": ["docs"]
+            },
+            "description": "Access the interactive Swagger UI documentation. Requires API key authentication."
+          },
+          "response": []
+        },
+        {
+          "name": "ReDoc Documentation",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/redoc",
+              "host": ["{{base_url}}"],
+              "path": ["redoc"]
+            },
+            "description": "Access the ReDoc API documentation. Requires API key authentication."
+          },
+          "response": []
+        },
+        {
+          "name": "OpenAPI Schema",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/openapi.json",
+              "host": ["{{base_url}}"],
+              "path": ["openapi.json"]
+            },
+            "description": "Get the OpenAPI schema JSON. Requires API key authentication."
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "https://your-project.vercel.app",
+      "type": "string"
+    },
+    {
+      "key": "api_key",
+      "value": "your_api_key_here",
+      "type": "string"
+    }
+  ]
+}
