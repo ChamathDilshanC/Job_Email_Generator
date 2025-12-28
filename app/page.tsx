@@ -60,7 +60,7 @@ export default function Home() {
               style={{ borderRadius: '8px' }}
             />
             <div>
-              <div className="sidebar-title">Email Generator</div>
+              <div className="sidebar-title">JobMail</div>
               <div className="sidebar-subtitle">
                 Professional Job Applications
               </div>
