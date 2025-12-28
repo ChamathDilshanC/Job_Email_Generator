@@ -217,6 +217,25 @@ export default function Home() {
             userSelect: 'none',
           }}
         >
+          <p style={{ marginBottom: '0.5rem' }}>
+            <a
+              href="/privacy"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ color: 'var(--primary)', textDecoration: 'none' }}
+            >
+              Privacy Policy
+            </a>
+            {' • '}
+            <a
+              href="/terms"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ color: 'var(--primary)', textDecoration: 'none' }}
+            >
+              Terms of Service
+            </a>
+          </p>
           <p>
             Built with ❤️ by Chamath Dilshan •{' '}
             <a
