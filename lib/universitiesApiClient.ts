@@ -75,7 +75,7 @@ const SRI_LANKAN_INSTITUTES: University[] = [
   },
 ];
 
-const API_BASE_URL = 'http://universities.hipolabs.com';
+const API_BASE_URL = 'https://universities.hipolabs.com';
 
 export const searchUniversities = async (
   query: string
