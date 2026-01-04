@@ -429,24 +429,6 @@ export default function ResumeBuilder() {
     return () => unsubscribe();
   }, []);
 
-  // Auto-save resume data when any data changes
-  useEffect(() => {
-    const auth = getAuth();
-    const user = auth.currentUser;
-
-    if (user) {
-      autoSaveResumeData({
-        personalInfo,
-        workExperiences,
-        education: educations,
-        skills: {
-          position,
-          selectedSkills,
-        },
-      });
-    }
-  }, [personalInfo, workExperiences, educations, position, selectedSkills]);
-
   // Helper function to show alert dialog
   const showAlert = (
     title: string,
@@ -458,7 +440,7 @@ export default function ResumeBuilder() {
   };
 
   // Handle Save & Continue for each step
-  const handleSaveStep = () => {
+  const handleSaveStep = async () => {
     let isValid = false;
 
     switch (activeSection) {
@@ -487,6 +469,22 @@ export default function ResumeBuilder() {
         isValid = validateSkills();
         if (isValid) {
           setStepsCompleted(prev => ({ ...prev, skills: true }));
+
+          // Save resume data to Firebase/MongoDB only when skills section is completed
+          const auth = getAuth();
+          const user = auth.currentUser;
+          if (user) {
+            await autoSaveResumeData({
+              personalInfo,
+              workExperiences,
+              education: educations,
+              skills: {
+                position,
+                selectedSkills,
+              },
+            });
+          }
+
           showAlert(
             'Resume Completed!',
             'Your resume data has been saved successfully.',
