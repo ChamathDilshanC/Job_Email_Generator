@@ -8,6 +8,14 @@ import { useState } from 'react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 
+// Helper function to format date in local timezone (avoids timezone offset issues)
+const formatDateToLocal = (date: Date): string => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
 interface WorkExperienceSectionProps {
   experiences: WorkExperience[];
   onUpdate: (experiences: WorkExperience[]) => void;
@@ -82,26 +90,30 @@ export default function WorkExperienceSection({
   };
 
   const updateField = (field: keyof WorkExperience, value: any) => {
-    setFormData({ ...formData, [field]: value });
+    setFormData(prev => ({ ...prev, [field]: value }));
   };
 
   const addResponsibility = () => {
-    setFormData({
-      ...formData,
-      responsibilities: [...formData.responsibilities, ''],
-    });
+    setFormData(prev => ({
+      ...prev,
+      responsibilities: [...prev.responsibilities, ''],
+    }));
   };
 
   const updateResponsibility = (index: number, value: string) => {
-    const newResp = [...formData.responsibilities];
-    newResp[index] = value;
-    setFormData({ ...formData, responsibilities: newResp });
+    setFormData(prev => {
+      const newResp = [...prev.responsibilities];
+      newResp[index] = value;
+      return { ...prev, responsibilities: newResp };
+    });
   };
 
   const removeResponsibility = (index: number) => {
     if (formData.responsibilities.length > 1) {
-      const newResp = formData.responsibilities.filter((_, i) => i !== index);
-      setFormData({ ...formData, responsibilities: newResp });
+      setFormData(prev => ({
+        ...prev,
+        responsibilities: prev.responsibilities.filter((_, i) => i !== index),
+      }));
     }
   };
 
@@ -279,7 +291,7 @@ export default function WorkExperienceSection({
                   onChange={date =>
                     updateField(
                       'startDate',
-                      date ? date.toISOString().split('T')[0] : ''
+                      date ? formatDateToLocal(date) : ''
                     )
                   }
                   dateFormat="MM/dd/yyyy"
@@ -304,10 +316,7 @@ export default function WorkExperienceSection({
                       : null
                   }
                   onChange={date =>
-                    updateField(
-                      'endDate',
-                      date ? date.toISOString().split('T')[0] : ''
-                    )
+                    updateField('endDate', date ? formatDateToLocal(date) : '')
                   }
                   dateFormat="MM/dd/yyyy"
                   placeholderText={

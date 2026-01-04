@@ -11,6 +11,14 @@ import React, { useState } from 'react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 
+// Helper function to format date in local timezone (avoids timezone offset issues)
+const formatDateToLocal = (date: Date): string => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
 interface EducationSectionProps {
   educations: Education[];
   onUpdate: (educations: Education[]) => void;
@@ -78,28 +86,30 @@ export default function EducationSection({
   };
 
   const updateField = (field: keyof Education, value: any) => {
-    setFormData({ ...formData, [field]: value });
+    setFormData(prev => ({ ...prev, [field]: value }));
   };
 
   const addAchievement = () => {
-    setFormData({
-      ...formData,
-      achievements: [...formData.achievements, ''],
-    });
+    setFormData(prev => ({
+      ...prev,
+      achievements: [...prev.achievements, ''],
+    }));
   };
 
   const updateAchievement = (index: number, value: string) => {
-    const newAchievements = [...formData.achievements];
-    newAchievements[index] = value;
-    setFormData({ ...formData, achievements: newAchievements });
+    setFormData(prev => {
+      const newAchievements = [...prev.achievements];
+      newAchievements[index] = value;
+      return { ...prev, achievements: newAchievements };
+    });
   };
 
   const removeAchievement = (index: number) => {
     if (formData.achievements.length > 1) {
-      const newAchievements = formData.achievements.filter(
-        (_, i) => i !== index
-      );
-      setFormData({ ...formData, achievements: newAchievements });
+      setFormData(prev => ({
+        ...prev,
+        achievements: prev.achievements.filter((_, i) => i !== index),
+      }));
     }
   };
 
@@ -131,13 +141,13 @@ export default function EducationSection({
       ? `${university['state-province']}, ${university.country}`
       : university.country;
 
-    setFormData({
-      ...formData,
+    setFormData(prev => ({
+      ...prev,
       institution: university.name,
       location: location,
       country: university.country,
       domain: university.domains[0] || '',
-    });
+    }));
     setShowUniversitySuggestions(false);
     setSelectedUniversityIndex(-1);
   };
@@ -514,7 +524,7 @@ export default function EducationSection({
                   onChange={date =>
                     updateField(
                       'startDate',
-                      date ? date.toISOString().split('T')[0] : ''
+                      date ? formatDateToLocal(date) : ''
                     )
                   }
                   dateFormat="MM/dd/yyyy"
@@ -539,10 +549,7 @@ export default function EducationSection({
                       : null
                   }
                   onChange={date =>
-                    updateField(
-                      'endDate',
-                      date ? date.toISOString().split('T')[0] : ''
-                    )
+                    updateField('endDate', date ? formatDateToLocal(date) : '')
                   }
                   dateFormat="MM/dd/yyyy"
                   placeholderText={

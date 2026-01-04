@@ -24,12 +24,3 @@ export const createEmptyWorkExperience = (): WorkExperience => ({
   responsibilities: [''],
 });
 
-// Helper function to format duration
-export const formatDuration = (
-  startDate: string,
-  endDate: string,
-  currentlyWorking: boolean
-): string => {
-  const end = currentlyWorking ? 'Present' : endDate;
-  return `${startDate} - ${end}`;
-};
