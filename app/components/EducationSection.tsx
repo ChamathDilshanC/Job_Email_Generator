@@ -7,7 +7,9 @@ import {
   searchUniversities,
   University,
 } from '@/lib/universitiesApiClient';
-import { useState } from 'react';
+import React, { useState } from 'react';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 
 interface EducationSectionProps {
   educations: Education[];
@@ -21,6 +23,7 @@ export default function EducationSection({
   const [showForm, setShowForm] = useState(false);
   const [editingEdu, setEditingEdu] = useState<Education | null>(null);
   const [formData, setFormData] = useState<Education>(createEmptyEducation());
+  const [showDateAlert, setShowDateAlert] = useState(false);
 
   // University autocomplete state
   const [universitySuggestions, setUniversitySuggestions] = useState<
@@ -35,6 +38,7 @@ export default function EducationSection({
   const [degreeSuggestions, setDegreeSuggestions] = useState<string[]>([]);
   const [showDegreeSuggestions, setShowDegreeSuggestions] = useState(false);
   const [selectedDegreeIndex, setSelectedDegreeIndex] = useState(-1);
+  const [date, setDate] = React.useState<Date>();
 
   const handleAdd = () => {
     setShowForm(true);
@@ -502,12 +506,23 @@ export default function EducationSection({
               <label className="text-sm font-medium text-gray-700">
                 Start Date <span className="text-red-500">*</span>
               </label>
-              <input
-                type="month"
-                value={formData.startDate}
-                onChange={e => updateField('startDate', e.target.value)}
-                className="px-3 py-2.5 border border-gray-300 rounded-lg bg-white text-sm text-gray-700 transition-all duration-200 focus:outline-none focus:border-[#3b3be3] focus:ring-3 focus:ring-blue-100"
-              />
+              <div className="relative">
+                <DatePicker
+                  selected={
+                    formData.startDate ? new Date(formData.startDate) : null
+                  }
+                  onChange={date =>
+                    updateField(
+                      'startDate',
+                      date ? date.toISOString().split('T')[0] : ''
+                    )
+                  }
+                  dateFormat="MM/dd/yyyy"
+                  placeholderText="Select start date"
+                  className="px-3 py-2.5 border border-gray-300 rounded-lg bg-white text-sm text-gray-700 transition-all duration-200 focus:outline-none focus:border-[#3b3be3] focus:ring-3 focus:ring-blue-100 w-full hover:border-[#3b3be3] hover:shadow-sm"
+                  maxDate={new Date()}
+                />
+              </div>
             </div>
             <div className="flex flex-col gap-2">
               <label className="text-sm font-medium text-gray-700">
@@ -516,31 +531,67 @@ export default function EducationSection({
                   <span className="text-red-500">*</span>
                 )}
               </label>
-              <input
-                type="month"
-                value={formData.endDate}
-                onChange={e => updateField('endDate', e.target.value)}
-                disabled={formData.currentlyStudying}
-                className="px-3 py-2.5 border border-gray-300 rounded-lg bg-white text-sm text-gray-700 transition-all duration-200 focus:outline-none focus:border-[#3b3be3] focus:ring-3 focus:ring-blue-100 disabled:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-60"
-              />
+              <div className="relative">
+                <DatePicker
+                  selected={
+                    formData.endDate && !formData.currentlyStudying
+                      ? new Date(formData.endDate)
+                      : null
+                  }
+                  onChange={date =>
+                    updateField(
+                      'endDate',
+                      date ? date.toISOString().split('T')[0] : ''
+                    )
+                  }
+                  dateFormat="MM/dd/yyyy"
+                  placeholderText={
+                    formData.currentlyStudying ? 'Present' : 'Select end date'
+                  }
+                  disabled={formData.currentlyStudying}
+                  className="px-3 py-2.5 border border-gray-300 rounded-lg bg-white text-sm text-gray-700 transition-all duration-200 focus:outline-none focus:border-[#3b3be3] focus:ring-3 focus:ring-blue-100 disabled:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-60 w-full hover:border-[#3b3be3] hover:shadow-sm"
+                  maxDate={new Date()}
+                  minDate={
+                    formData.startDate ? new Date(formData.startDate) : null
+                  }
+                />
+              </div>
             </div>
           </div>
 
           <div className="flex flex-col gap-2 mb-5">
-            <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={formData.currentlyStudying}
-                onChange={e => {
-                  updateField('currentlyStudying', e.target.checked);
-                  if (e.target.checked) {
-                    updateField('endDate', '');
-                  }
-                }}
-                className="w-[18px] h-[18px] cursor-pointer accent-[#3b3be3]"
-              />
-              I currently study here
+            <label className="text-sm font-medium text-gray-700">
+              Education Status
             </label>
+            <div className="flex gap-4">
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="radio"
+                  name="studyStatus"
+                  value="completed"
+                  checked={!formData.currentlyStudying}
+                  onChange={() => updateField('currentlyStudying', false)}
+                  className="w-4 h-4 text-[#3b3be3] border-gray-300 focus:ring-[#3b3be3] cursor-pointer"
+                />
+                <span className="text-sm text-gray-700">Completed</span>
+              </label>
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="radio"
+                  name="studyStatus"
+                  value="current"
+                  checked={formData.currentlyStudying}
+                  onChange={() => {
+                    updateField('currentlyStudying', true);
+                    updateField('endDate', '');
+                  }}
+                  className="w-4 h-4 text-[#3b3be3] border-gray-300 focus:ring-[#3b3be3] cursor-pointer"
+                />
+                <span className="text-sm text-gray-700">
+                  Currently Studying Here
+                </span>
+              </label>
+            </div>
           </div>
 
           <div className="flex flex-col gap-2 mb-5">

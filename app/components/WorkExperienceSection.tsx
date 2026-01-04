@@ -5,6 +5,8 @@ import {
   createEmptyWorkExperience,
 } from '@/app/models/WorkExperience';
 import { useState } from 'react';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 
 interface WorkExperienceSectionProps {
   experiences: WorkExperience[];
@@ -269,12 +271,23 @@ export default function WorkExperienceSection({
               <label className="text-sm font-medium text-gray-700">
                 Start Date <span className="text-red-500">*</span>
               </label>
-              <input
-                type="month"
-                value={formData.startDate}
-                onChange={e => updateField('startDate', e.target.value)}
-                className="px-3 py-2.5 border border-gray-300 rounded-lg bg-white text-sm text-gray-700 transition-all duration-200 focus:outline-none focus:border-[#3b3be3] focus:ring-3 focus:ring-blue-100"
-              />
+              <div className="relative">
+                <DatePicker
+                  selected={
+                    formData.startDate ? new Date(formData.startDate) : null
+                  }
+                  onChange={date =>
+                    updateField(
+                      'startDate',
+                      date ? date.toISOString().split('T')[0] : ''
+                    )
+                  }
+                  dateFormat="MM/dd/yyyy"
+                  placeholderText="Select start date"
+                  className="px-3 py-2.5 border border-gray-300 rounded-lg bg-white text-sm text-gray-700 transition-all duration-200 focus:outline-none focus:border-[#3b3be3] focus:ring-3 focus:ring-blue-100 w-full hover:border-[#3b3be3] hover:shadow-sm"
+                  maxDate={new Date()}
+                />
+              </div>
             </div>
             <div className="flex flex-col gap-2">
               <label className="text-sm font-medium text-gray-700">
@@ -283,31 +296,67 @@ export default function WorkExperienceSection({
                   <span className="text-red-500">*</span>
                 )}
               </label>
-              <input
-                type="month"
-                value={formData.endDate}
-                onChange={e => updateField('endDate', e.target.value)}
-                disabled={formData.currentlyWorking}
-                className="px-3 py-2.5 border border-gray-300 rounded-lg bg-white text-sm text-gray-700 transition-all duration-200 focus:outline-none focus:border-[#3b3be3] focus:ring-3 focus:ring-blue-100 disabled:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-60"
-              />
+              <div className="relative">
+                <DatePicker
+                  selected={
+                    formData.endDate && !formData.currentlyWorking
+                      ? new Date(formData.endDate)
+                      : null
+                  }
+                  onChange={date =>
+                    updateField(
+                      'endDate',
+                      date ? date.toISOString().split('T')[0] : ''
+                    )
+                  }
+                  dateFormat="MM/dd/yyyy"
+                  placeholderText={
+                    formData.currentlyWorking ? 'Present' : 'Select end date'
+                  }
+                  disabled={formData.currentlyWorking}
+                  className="px-3 py-2.5 border border-gray-300 rounded-lg bg-white text-sm text-gray-700 transition-all duration-200 focus:outline-none focus:border-[#3b3be3] focus:ring-3 focus:ring-blue-100 disabled:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-60 w-full hover:border-[#3b3be3] hover:shadow-sm"
+                  maxDate={new Date()}
+                  minDate={
+                    formData.startDate ? new Date(formData.startDate) : null
+                  }
+                />
+              </div>
             </div>
           </div>
 
           <div className="flex flex-col gap-2 mb-5">
-            <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={formData.currentlyWorking}
-                onChange={e => {
-                  updateField('currentlyWorking', e.target.checked);
-                  if (e.target.checked) {
-                    updateField('endDate', '');
-                  }
-                }}
-                className="w-[18px] h-[18px] cursor-pointer accent-[#3b3be3]"
-              />
-              I currently work here
+            <label className="text-sm font-medium text-gray-700">
+              Employment Status
             </label>
+            <div className="flex gap-4">
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="radio"
+                  name="workStatus"
+                  value="past"
+                  checked={!formData.currentlyWorking}
+                  onChange={() => updateField('currentlyWorking', false)}
+                  className="w-4 h-4 text-[#3b3be3] border-gray-300 focus:ring-[#3b3be3] cursor-pointer"
+                />
+                <span className="text-sm text-gray-700">Past Position</span>
+              </label>
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="radio"
+                  name="workStatus"
+                  value="current"
+                  checked={formData.currentlyWorking}
+                  onChange={() => {
+                    updateField('currentlyWorking', true);
+                    updateField('endDate', '');
+                  }}
+                  className="w-4 h-4 text-[#3b3be3] border-gray-300 focus:ring-[#3b3be3] cursor-pointer"
+                />
+                <span className="text-sm text-gray-700">
+                  Currently Working Here
+                </span>
+              </label>
+            </div>
           </div>
 
           <div className="flex flex-col gap-2 mb-5">

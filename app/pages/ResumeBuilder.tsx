@@ -12,7 +12,10 @@ import {
   getPositionSuggestions,
 } from '@/lib/skillsApiClient';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import PhoneInput from 'react-phone-number-input';
+import en from 'react-phone-number-input/locale/en';
+import 'react-phone-number-input/style.css';
 
 export default function ResumeBuilder() {
   const [activeSection, setActiveSection] = useState('personal');
@@ -53,7 +56,7 @@ export default function ResumeBuilder() {
   const [personalInfo, setPersonalInfo] = useState({
     fullName: '',
     email: '',
-    phone: '',
+    phone: '+94',
     location: '',
     summary: '',
   });
@@ -66,42 +69,45 @@ export default function ResumeBuilder() {
     skills: false,
   });
 
-  // Validation functions for each step
-  const validatePersonalInfo = () => {
+  // Validation functions for each step - memoized for performance
+  const validatePersonalInfo = useMemo(() => {
     return !!(personalInfo.fullName.trim() && personalInfo.email.trim());
-  };
+  }, [personalInfo.fullName, personalInfo.email]);
 
-  const validateExperience = () => {
+  const validateExperience = useMemo(() => {
     return workExperiences.length > 0;
-  };
+  }, [workExperiences.length]);
 
-  const validateEducation = () => {
+  const validateEducation = useMemo(() => {
     return educations.length > 0;
-  };
+  }, [educations.length]);
 
-  const validateSkills = () => {
+  const validateSkills = useMemo(() => {
     return !!(position.trim() && selectedSkills.length > 0);
-  };
+  }, [position, selectedSkills.length]);
 
-  // Check if a section can be accessed
-  const canAccessSection = (section: string) => {
-    switch (section) {
-      case 'personal':
-        return true; // Always accessible
-      case 'experience':
-        return stepsCompleted.personal;
-      case 'education':
-        return stepsCompleted.personal && stepsCompleted.experience;
-      case 'skills':
-        return (
-          stepsCompleted.personal &&
-          stepsCompleted.experience &&
-          stepsCompleted.education
-        );
-      default:
-        return false;
-    }
-  };
+  // Check if a section can be accessed - memoized for performance
+  const canAccessSection = useCallback(
+    (section: string) => {
+      switch (section) {
+        case 'personal':
+          return true; // Always accessible
+        case 'experience':
+          return stepsCompleted.personal;
+        case 'education':
+          return stepsCompleted.personal && stepsCompleted.experience;
+        case 'skills':
+          return (
+            stepsCompleted.personal &&
+            stepsCompleted.experience &&
+            stepsCompleted.education
+          );
+        default:
+          return false;
+      }
+    },
+    [stepsCompleted]
+  );
 
   // Typewriter animation for position placeholder
   const positionPlaceholder = useTypewriter(
@@ -223,91 +229,100 @@ export default function ResumeBuilder() {
   };
 
   // Toggle skill selection - add to selected and remove from suggestions
-  const toggleSkill = (skill: string) => {
-    console.log('Toggle skill:', skill);
-    console.log('Current suggestedSkills:', suggestedSkills);
-    console.log('Current selectedSkills:', selectedSkills);
+  const toggleSkill = useCallback(
+    (skill: string) => {
+      console.log('Toggle skill:', skill);
+      console.log('Current suggestedSkills:', suggestedSkills);
+      console.log('Current selectedSkills:', selectedSkills);
 
-    if (selectedSkills.includes(skill)) {
-      // If already selected, remove it from selected
-      const newSelected = selectedSkills.filter(s => s !== skill);
-      setSelectedSkills(newSelected);
-      console.log('Removed from selected, new selected:', newSelected);
+      if (selectedSkills.includes(skill)) {
+        // If already selected, remove it from selected
+        const newSelected = selectedSkills.filter(s => s !== skill);
+        setSelectedSkills(newSelected);
+        console.log('Removed from selected, new selected:', newSelected);
 
-      // Add it back to suggestions if not already there
-      if (!suggestedSkills.includes(skill)) {
-        const newSuggested = [...suggestedSkills, skill];
-        setSuggestedSkills(newSuggested);
-        console.log('Added back to suggestions:', newSuggested);
+        // Add it back to suggestions if not already there
+        if (!suggestedSkills.includes(skill)) {
+          const newSuggested = [...suggestedSkills, skill];
+          setSuggestedSkills(newSuggested);
+          console.log('Added back to suggestions:', newSuggested);
+        }
+      } else if (selectedSkills.length < 50) {
+        // Add to selected
+        const newSelected = [...selectedSkills, skill];
+        setSelectedSkills(newSelected);
+        console.log('Added to selected:', newSelected);
+
+        // Find a replacement skill from allAvailableSkills
+        const replacementSkill = allAvailableSkills.find(
+          s => !newSelected.includes(s) && !suggestedSkills.includes(s)
+        );
+
+        if (replacementSkill) {
+          // Replace the selected skill with a new one
+          const newSuggested = suggestedSkills.map(s =>
+            s === skill ? replacementSkill : s
+          );
+          setSuggestedSkills(newSuggested);
+          console.log(
+            'Replaced in suggestions with:',
+            replacementSkill,
+            'New suggested:',
+            newSuggested
+          );
+        } else {
+          // No replacement available, just remove it
+          const newSuggested = suggestedSkills.filter(s => s !== skill);
+          setSuggestedSkills(newSuggested);
+          console.log(
+            'No replacement, removed from suggestions, new suggested:',
+            newSuggested
+          );
+        }
       }
-    } else if (selectedSkills.length < 50) {
-      // Add to selected
-      const newSelected = [...selectedSkills, skill];
-      setSelectedSkills(newSelected);
-      console.log('Added to selected:', newSelected);
-
-      // Find a replacement skill from allAvailableSkills
-      const replacementSkill = allAvailableSkills.find(
-        s => !newSelected.includes(s) && !suggestedSkills.includes(s)
-      );
-
-      if (replacementSkill) {
-        // Replace the selected skill with a new one
-        const newSuggested = suggestedSkills.map(s =>
-          s === skill ? replacementSkill : s
-        );
-        setSuggestedSkills(newSuggested);
-        console.log(
-          'Replaced in suggestions with:',
-          replacementSkill,
-          'New suggested:',
-          newSuggested
-        );
-      } else {
-        // No replacement available, just remove it
-        const newSuggested = suggestedSkills.filter(s => s !== skill);
-        setSuggestedSkills(newSuggested);
-        console.log(
-          'No replacement, removed from suggestions, new suggested:',
-          newSuggested
-        );
-      }
-    }
-  };
+    },
+    [selectedSkills, suggestedSkills, allAvailableSkills]
+  );
 
   // Handle custom skill input change with autocomplete
-  const handleCustomSkillChange = (value: string) => {
-    setCustomSkill(value);
-    setSelectedCustomSkillIndex(-1); // Reset selection when typing
+  const handleCustomSkillChange = useCallback(
+    (value: string) => {
+      setCustomSkill(value);
+      setSelectedCustomSkillIndex(-1); // Reset selection when typing
 
-    if (value.trim()) {
-      // Filter from ALL available skills that aren't already selected
-      const filtered = allAvailableSkills
-        .filter(
-          skill =>
-            skill.toLowerCase().includes(value.toLowerCase()) &&
-            !selectedSkills.includes(skill)
-        )
-        .slice(0, 10);
-      setCustomSkillSuggestions(filtered);
-      setShowCustomSkillSuggestions(filtered.length > 0);
-    } else {
-      setCustomSkillSuggestions([]);
-      setShowCustomSkillSuggestions(false);
-    }
-  };
+      if (value.trim()) {
+        // Filter from ALL available skills that aren't already selected
+        const filtered = allAvailableSkills
+          .filter(
+            skill =>
+              skill.toLowerCase().includes(value.toLowerCase()) &&
+              !selectedSkills.includes(skill)
+          )
+          .slice(0, 10);
+        setCustomSkillSuggestions(filtered);
+        setShowCustomSkillSuggestions(filtered.length > 0);
+      } else {
+        setCustomSkillSuggestions([]);
+        setShowCustomSkillSuggestions(false);
+      }
+    },
+    [allAvailableSkills, selectedSkills]
+  );
 
   // Select skill from custom skill suggestions
-  const selectCustomSkill = (skill: string) => {
-    if (selectedSkills.length < 50 && !selectedSkills.includes(skill)) {
-      setSelectedSkills([...selectedSkills, skill]);
-      setCustomSkill('');
-      setShowCustomSkillSuggestions(false);
-    }
-  };
+  const selectCustomSkill = useCallback(
+    (skill: string) => {
+      if (selectedSkills.length < 50 && !selectedSkills.includes(skill)) {
+        setSelectedSkills([...selectedSkills, skill]);
+        setCustomSkill('');
+        setShowCustomSkillSuggestions(false);
+      }
+    },
+    [selectedSkills]
+  );
 
   // Add custom skill
-  const addCustomSkill = () => {
+  const addCustomSkill = useCallback(() => {
     const trimmedSkill = customSkill.trim();
     if (
       trimmedSkill &&
@@ -318,7 +333,7 @@ export default function ResumeBuilder() {
       setCustomSkill('');
       setShowCustomSkillSuggestions(false);
     }
-  };
+  }, [customSkill, selectedSkills]);
 
   // Handle keyboard navigation for custom skills
   const handleCustomSkillKeyDown = (
@@ -361,9 +376,9 @@ export default function ResumeBuilder() {
   };
 
   // Remove skill
-  const removeSkill = (skill: string) => {
-    setSelectedSkills(selectedSkills.filter(s => s !== skill));
-  };
+  const removeSkill = useCallback((skill: string) => {
+    setSelectedSkills(prev => prev.filter(s => s !== skill));
+  }, []);
 
   // Load resume data from Firebase when user logs in
   useEffect(() => {
@@ -383,10 +398,14 @@ export default function ResumeBuilder() {
             // Load personal info
             console.log('Personal Info from DB:', data.personalInfo);
             if (data.personalInfo) {
+              // Validate phone number - must start with + and contain only digits and +
+              const phoneValue = data.personalInfo.phone || '+94';
+              const isValidPhone = phoneValue.match(/^\+\d+$/);
+
               setPersonalInfo({
                 fullName: data.personalInfo.fullName || '',
                 email: data.personalInfo.email || '',
-                phone: data.personalInfo.phone || '',
+                phone: isValidPhone ? phoneValue : '+94',
                 location: data.personalInfo.location || '',
                 summary: data.personalInfo.summary || '',
               });
@@ -430,47 +449,98 @@ export default function ResumeBuilder() {
   }, []);
 
   // Helper function to show alert dialog
-  const showAlert = (
-    title: string,
-    description: string,
-    type: 'success' | 'error' | 'info' | 'warning' = 'info'
-  ) => {
-    setAlertConfig({ title, description, type });
-    setAlertOpen(true);
-  };
+  const showAlert = useCallback(
+    (
+      title: string,
+      description: string,
+      type: 'success' | 'error' | 'info' | 'warning' = 'info'
+    ) => {
+      setAlertConfig({ title, description, type });
+      setAlertOpen(true);
+    },
+    []
+  );
 
   // Handle Save & Continue for each step
-  const handleSaveStep = async () => {
+  const handleSaveStep = useCallback(async () => {
     let isValid = false;
 
     switch (activeSection) {
       case 'personal':
-        isValid = validatePersonalInfo();
+        isValid = validatePersonalInfo;
         if (isValid) {
           setStepsCompleted(prev => ({ ...prev, personal: true }));
+
+          // Save data when moving forward
+          const auth = getAuth();
+          const user = auth.currentUser;
+          if (user) {
+            await autoSaveResumeData({
+              personalInfo,
+              workExperiences,
+              education: educations,
+              skills: {
+                position,
+                selectedSkills,
+              },
+            });
+          }
+
           setActiveSection('experience');
         }
         break;
       case 'experience':
-        isValid = validateExperience();
+        isValid = validateExperience;
         if (isValid) {
           setStepsCompleted(prev => ({ ...prev, experience: true }));
+
+          // Save data when moving forward
+          const auth = getAuth();
+          const user = auth.currentUser;
+          if (user) {
+            await autoSaveResumeData({
+              personalInfo,
+              workExperiences,
+              education: educations,
+              skills: {
+                position,
+                selectedSkills,
+              },
+            });
+          }
+
           setActiveSection('education');
         }
         break;
       case 'education':
-        isValid = validateEducation();
+        isValid = validateEducation;
         if (isValid) {
           setStepsCompleted(prev => ({ ...prev, education: true }));
+
+          // Save data when moving forward
+          const auth = getAuth();
+          const user = auth.currentUser;
+          if (user) {
+            await autoSaveResumeData({
+              personalInfo,
+              workExperiences,
+              education: educations,
+              skills: {
+                position,
+                selectedSkills,
+              },
+            });
+          }
+
           setActiveSection('skills');
         }
         break;
       case 'skills':
-        isValid = validateSkills();
+        isValid = validateSkills;
         if (isValid) {
           setStepsCompleted(prev => ({ ...prev, skills: true }));
 
-          // Save resume data to Firebase/MongoDB only when skills section is completed
+          // Save resume data to Firebase/MongoDB when skills section is completed
           const auth = getAuth();
           const user = auth.currentUser;
           if (user) {
@@ -501,10 +571,22 @@ export default function ResumeBuilder() {
         'warning'
       );
     }
-  };
+  }, [
+    activeSection,
+    validatePersonalInfo,
+    validateExperience,
+    validateEducation,
+    validateSkills,
+    personalInfo,
+    workExperiences,
+    educations,
+    position,
+    selectedSkills,
+    showAlert,
+  ]);
 
   // Handle Previous Step
-  const handlePreviousStep = () => {
+  const handlePreviousStep = useCallback(() => {
     switch (activeSection) {
       case 'experience':
         setActiveSection('personal');
@@ -516,10 +598,10 @@ export default function ResumeBuilder() {
         setActiveSection('education');
         break;
     }
-  };
+  }, [activeSection]);
 
   // Handle Cancel (reset current section)
-  const handleCancel = () => {
+  const handleCancel = useCallback(() => {
     if (
       confirm(
         'Are you sure you want to cancel? This will clear your current progress in this section.'
@@ -547,7 +629,7 @@ export default function ResumeBuilder() {
           break;
       }
     }
-  };
+  }, [activeSection]);
 
   return (
     <div className="h-full">
@@ -922,6 +1004,30 @@ export default function ResumeBuilder() {
 
               {activeSection === 'personal' && (
                 <div className="flex flex-col gap-5">
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+                    <div className="flex items-start gap-3">
+                      <svg
+                        className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                      >
+                        <circle cx="12" cy="12" r="10" />
+                        <line x1="12" y1="16" x2="12" y2="12" />
+                        <line x1="12" y1="8" x2="12.01" y2="8" />
+                      </svg>
+                      <div>
+                        <p className="text-sm font-medium text-blue-900">
+                          Please enter valid and accurate data
+                        </p>
+                        <p className="text-xs text-blue-700 mt-1">
+                          Your email templates and CV will be created based on
+                          this information.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="flex flex-col gap-2">
                       <label className="text-sm font-medium text-gray-700">
@@ -963,17 +1069,82 @@ export default function ResumeBuilder() {
                       <label className="text-sm font-medium text-gray-700">
                         Phone
                       </label>
-                      <input
-                        type="tel"
-                        placeholder="+1 234 567 8900"
+                      <PhoneInput
+                        international
+                        defaultCountry="LK"
+                        countryCallingCodeEditable={false}
+                        placeholder="+94 71 234 5678"
                         value={personalInfo.phone}
-                        onChange={e =>
+                        onChange={value =>
                           setPersonalInfo({
                             ...personalInfo,
-                            phone: e.target.value,
+                            phone: value || '',
                           })
                         }
-                        className="px-3 py-2.5 border border-gray-300 rounded-lg bg-gray-50 text-sm text-gray-700 transition-all duration-200 focus:outline-none focus:border-[#3b3be3] focus:ring-3 focus:ring-blue-100 focus:bg-white"
+                        onCountryChange={country => {
+                          const countryNames: { [key: string]: string } = {
+                            LK: 'Sri Lanka',
+                            US: 'United States',
+                            GB: 'United Kingdom',
+                            CA: 'Canada',
+                            AU: 'Australia',
+                            DE: 'Germany',
+                            FR: 'France',
+                            IT: 'Italy',
+                            ES: 'Spain',
+                            IN: 'India',
+                            CN: 'China',
+                            JP: 'Japan',
+                            BR: 'Brazil',
+                            MX: 'Mexico',
+                            RU: 'Russia',
+                            ZA: 'South Africa',
+                            KR: 'South Korea',
+                            NZ: 'New Zealand',
+                            SG: 'Singapore',
+                            NL: 'Netherlands',
+                            SE: 'Sweden',
+                            CH: 'Switzerland',
+                            AE: 'United Arab Emirates',
+                            AR: 'Argentina',
+                            AT: 'Austria',
+                            BE: 'Belgium',
+                            CL: 'Chile',
+                            CO: 'Colombia',
+                            CZ: 'Czech Republic',
+                            DK: 'Denmark',
+                            EG: 'Egypt',
+                            FI: 'Finland',
+                            GR: 'Greece',
+                            HK: 'Hong Kong',
+                            ID: 'Indonesia',
+                            IE: 'Ireland',
+                            IL: 'Israel',
+                            MY: 'Malaysia',
+                            NG: 'Nigeria',
+                            NO: 'Norway',
+                            PH: 'Philippines',
+                            PK: 'Pakistan',
+                            PL: 'Poland',
+                            PT: 'Portugal',
+                            RO: 'Romania',
+                            SA: 'Saudi Arabia',
+                            TH: 'Thailand',
+                            TR: 'Turkey',
+                            UA: 'Ukraine',
+                            VN: 'Vietnam',
+                          };
+                          if (country) {
+                            const countryName =
+                              countryNames[country] || country;
+                            setPersonalInfo(prev => ({
+                              ...prev,
+                              location: countryName,
+                            }));
+                          }
+                        }}
+                        className="phone-input-custom"
+                        labels={en}
                       />
                     </div>
                     <div className="flex flex-col gap-2">
@@ -1030,6 +1201,30 @@ export default function ResumeBuilder() {
 
               {activeSection === 'experience' && (
                 <div>
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+                    <div className="flex items-start gap-3">
+                      <svg
+                        className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                      >
+                        <circle cx="12" cy="12" r="10" />
+                        <line x1="12" y1="16" x2="12" y2="12" />
+                        <line x1="12" y1="8" x2="12.01" y2="8" />
+                      </svg>
+                      <div>
+                        <p className="text-sm font-medium text-blue-900">
+                          Please enter valid and accurate data
+                        </p>
+                        <p className="text-xs text-blue-700 mt-1">
+                          Your email templates and CV will be created based on
+                          this information.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
                   <WorkExperienceSection
                     experiences={workExperiences}
                     onUpdate={setWorkExperiences}
@@ -1061,6 +1256,30 @@ export default function ResumeBuilder() {
 
               {activeSection === 'education' && (
                 <div>
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+                    <div className="flex items-start gap-3">
+                      <svg
+                        className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                      >
+                        <circle cx="12" cy="12" r="10" />
+                        <line x1="12" y1="16" x2="12" y2="12" />
+                        <line x1="12" y1="8" x2="12.01" y2="8" />
+                      </svg>
+                      <div>
+                        <p className="text-sm font-medium text-blue-900">
+                          Please enter valid and accurate data
+                        </p>
+                        <p className="text-xs text-blue-700 mt-1">
+                          Your email templates and CV will be created based on
+                          this information.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
                   <EducationSection
                     educations={educations}
                     onUpdate={setEducations}
@@ -1092,6 +1311,30 @@ export default function ResumeBuilder() {
 
               {activeSection === 'skills' && (
                 <div className="flex flex-col gap-5">
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+                    <div className="flex items-start gap-3">
+                      <svg
+                        className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                      >
+                        <circle cx="12" cy="12" r="10" />
+                        <line x1="12" y1="16" x2="12" y2="12" />
+                        <line x1="12" y1="8" x2="12.01" y2="8" />
+                      </svg>
+                      <div>
+                        <p className="text-sm font-medium text-blue-900">
+                          Please enter valid and accurate data
+                        </p>
+                        <p className="text-xs text-blue-700 mt-1">
+                          Your email templates and CV will be created based on
+                          this information.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
                   <p className="text-gray-600 mb-4">
                     Enter your target position to get relevant skill
                     suggestions, or add custom skills.
